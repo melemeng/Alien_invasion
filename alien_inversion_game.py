@@ -16,6 +16,9 @@ class AlienInvasion:
         
         self.ship = Ship(self)
         self.alien = Alien(self)
+        
+
+           
 
 
     def _check_events(self):
@@ -23,7 +26,17 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-    
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    # Move the ship to the right 
+                    self.ship.moving_right = True
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = False
 
     def _update_screen(self):
 
@@ -45,6 +58,7 @@ class AlienInvasion:
         while True:
             # Watch for keyboard and mouse event.
             self._check_events()
+            self.ship.update()
             self._update_screen()
           
                 
@@ -60,6 +74,10 @@ class Settings:
         self.screen_width = 1200
         self.screen_height = 800
         self.bg_color      = (135, 206, 235)
+        #Ship settings
+        self.ship_speed = 1.5
+
+
 
 
 class Ship:
@@ -71,8 +89,7 @@ class Ship:
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
 
-    
-
+       
         # Load the Ship image and get its screen_rect
         self.image = pygame.image.load('images/rocket.bmp')
 
@@ -84,13 +101,32 @@ class Ship:
 
         self.rect  = self.image.get_rect()
         self.rect.midbottom = self.screen_rect.midbottom
-    
+        
+
+         #Movement flag
+        self.moving_right = False
+        self.moving_left = False
+        
+        self.settings = ai_game.settings
+
+        #Store a decimal value for the ships horizontal position
+        self.x = float(self.rect.x)
+   
+
     def blitme(self):
         """drawn the shit at its current location"""
 
         self.screen.blit(self.image, self.rect)
 
+    def update(self):
+        """ update the ships position bases onthe movement of flag"""
+        if self.moving_right and self.rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        if self.moving_left and self.rect.left > 0 :
+            self.x -= self.settings.ship_speed
 
+        self.rect.x = self.x
+ 
 
 class Alien:
     """ A class to manage the Alien Ship """
